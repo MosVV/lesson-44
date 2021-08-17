@@ -8,69 +8,75 @@ import java.util.List;
 import java.util.Scanner;
 
 
-public class PhoneDAO extends AbstractDAO {
+public class PhoneDAO extends AbstractDAO<Phone, Long> {
 
-    private int id;
-    private String name;
-    private String phone;
 
     //поля для подключения к mysql серверу
-
-
     private Connection connection;
     private DatabaseMetaData ConnectorDB;
-    public static final String SQL_SELECT_ALL_USERS = "SELECT * FROM users";
-    public static final String SQL_SELECT_USER_ID = "SELECT * FROM users WHERE id=?";
+    public static final String SQL_SELECT_ALL_USERS = "SELECT * FROM phone";
+    public static final String SQL_SELECT_USER_ID = "SELECT * FROM phone WHERE id=?";
+    public static final String INSERT_QUERY = "INSERT INTO phone (username, phones) VALUES (?,?)";
 
 
     @Override
-    public List getAll() {
+    public List<Phone> getAll() {
 
         return null;
     }
 
     @Override
-    public Object findEntityById(Object id) {
-        return null;
-    }
-
-    /*@Override
-    public String findEntityById(Integer id) {
-        connectionDB.getConnection();
-        String name = "";
-        String phone = "";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_USER_ID);
-            preparedStatement.setInt(1, id);
-            ResultSet rs = preparedStatement.executeQuery();
-            if (rs.next()) {
-                name = rs.getString(2);
-                phone=rs.getString(3);
-
-                // user = new User(id, name);
+    public Phone findEntityById(Long id) {
+        String connectionURL = "jdbc:mysql://localhost:3306/mysql";
+        String userName = "root";
+        String password = "Frfltvbr";
+        Connection connectionDB = null;
+        Phone phone = new Phone();
+        try (Connection connection = DriverManager.getConnection(connectionURL, userName, password);
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_USER_ID)) {
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                phone.setName(resultSet.getString("name"));
+                phone.setPhone(resultSet.getString("phones"));
+                phone.setId(resultSet.getInt("id"));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+
         }
-        return "ФИО: " + name +" телефон: "+ phone;
-    }*/
+        return phone;
+    }
 
     @Override
-    public Object update(Object entity) {
+    public Phone update(Phone entity) {
         return null;
     }
 
     @Override
-    public boolean delete(Object id) {
+    public boolean delete(Long id) {
+        String connectionURL = "jdbc:mysql://localhost:3306/mysql";
+        String userName = "root";
+        String password = "Frfltvbr";
+        Connection connectionDB = null;
+        String DELETE="DELETE FROM ADS WHERE Id="+id;
+        try (Connection connection = DriverManager.getConnection(connectionURL, userName, password);
+             PreparedStatement preparedStatement = connection.prepareStatement(DELETE)) {
+            return true;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+
+        }
         return false;
     }
+
 
     @Override
     public boolean create(Phone phone) {
         String connectionURL = "jdbc:mysql://localhost:3306/mysql";
         String userName = "root";
         String password = "Frfltvbr";
-        String INSERT_QUERY = "INSERT INTO phone (username, phones) VALUES (?,?)";
+
         Connection connectionDB = null;
         try (Connection connection = DriverManager.getConnection(connectionURL, userName, password);
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_QUERY)) {
